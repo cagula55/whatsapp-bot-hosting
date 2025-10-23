@@ -10,7 +10,7 @@ const client = new Client({
   }
 });
 
-let botActive = false;
+let spamInterval = null;
 
 // Citim mesajul de spam din spam.txt
 const getSpamMessage = () => {
@@ -33,27 +33,33 @@ client.on('disconnected', (reason) => {
 
 client.on('message', async msg => {
   const text = msg.body.toLowerCase();
+  const chat = await msg.getChat();
 
-  // Activare bot
-  if (text === '/start') {
-    botActive = true;
-    await msg.reply('✅ Botul a fost activat.');
-    return;
-  }
-
-  // Dezactivare bot
+  // Oprire spam
   if (text === '/stop') {
-    botActive = false;
-    await msg.reply('⛔ Botul a fost dezactivat.');
+    if (spamInterval) {
+      clearInterval(spamInterval);
+      spamInterval = null;
+      await msg.reply('⛔ Spam oprit.');
+    } else {
+      await msg.reply('⚠️ Nu era activ niciun spam.');
+    }
     return;
   }
 
-  if (!botActive) return;
-
-  // Trimite mesajul de spam
-  if (text === '/spam') {
+  // Activare spam la intervale
+  const match = text.match(/^\/start(\d+)$/);
+  if (match) {
+    const seconds = parseInt(match[1]);
     const spam = getSpamMessage();
-    await msg.reply(spam);
+
+    if (spamInterval) clearInterval(spamInterval); // oprim orice spam anterior
+
+    spamInterval = setInterval(() => {
+      chat.sendMessage(spam);
+    }, seconds * 1000);
+
+    await msg.reply(`✅ Spam activat la fiecare ${seconds} secunde.`);
     return;
   }
 
