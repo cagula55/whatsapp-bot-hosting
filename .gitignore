@@ -1,25 +1,5 @@
-# Node modules
 node_modules/
-
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Environment variables
 .env
-.env.local
-.env.*.local
-
-# Session files (pentru whatsapp-web.js)
 .session/
 *.json
-
-# Build output
-dist/
-build/
-out/
-
-# OS-specific
-.DS_Store
-Thumbs.db
+spam.txt
